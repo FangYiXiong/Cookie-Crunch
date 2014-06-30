@@ -78,7 +78,16 @@ class Level {
     }
     
     func detectPossibleSwaps() {
-    
+        var set = Set<Swap>()
+        
+        for row in 0..NumRows {
+            for column in 0..NumColumns {
+                if let cookie = cookies[column, row] {
+                    // TODO: detection logic goes here
+                    
+                }
+            }
+        }
     }
     
     func createInitialCookies() -> Set<Cookie> {
