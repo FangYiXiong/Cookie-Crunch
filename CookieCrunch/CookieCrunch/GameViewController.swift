@@ -41,6 +41,9 @@ class GameViewController: UIViewController {
         level = Level(filename:"Level_3")
         scene.level = level
         scene.addTiles()
+        // 这里将handleSwipe函数 传给 scene，这样每当GameScene这个类调用swipehandler(swap)时，它实际上调用的是GameViewController中的这个函数！可以这样做的原因是在Swift中，函数和闭包是可以交换的。
+        scene.swipeHandler = handleSwipe
+        
         
         // 展示场景
         skView.presentScene(scene)
@@ -57,6 +60,16 @@ class GameViewController: UIViewController {
         // 获得一组随机的cookies
         let newCookies = level.shuffle()
         scene.addSpriteForCookies(newCookies)
+    }
+    
+    func handleSwipe(swap: Swap) {
+        view.userInteractionEnabled = false
+        
+        level.performSwap(swap)
+        
+        scene.animateSwap(swap){
+            self.view.userInteractionEnabled = true
+        }
     }
     
 }
