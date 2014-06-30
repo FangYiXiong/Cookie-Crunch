@@ -59,7 +59,15 @@ class Level {
             for column in 0..NumColumns {
                 // 判断当前位置是否有 Tile
                 if tiles[column, row] != nil {
-                    var cookieType = CookieType.random()
+//                    var cookieType = CookieType.random()
+//                    这里把随机的🍰类型注释掉，保证刚开始的时候没办法进行3连消除
+                    var cookieType: CookieType
+                    do {
+                        cookieType = CookieType.random()
+                    }while (column >= 2 && cookies[column - 1, row]?.cookieType == cookieType &&
+                            cookies[column - 2, row]?.cookieType == cookieType)
+                        || (row >= 2 && cookies[column, row - 1]?.cookieType == cookieType &&
+                            cookies[column, row - 2]?.cookieType == cookieType)
                     let cookie = Cookie(column: column, row: row, cookieType: cookieType)
                     // 这里的let 的数组是可变的？
                     cookies[column, row] = cookie

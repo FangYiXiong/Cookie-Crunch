@@ -12,6 +12,7 @@ class GameScene: SKScene {
     var level: Level!
     var swipeFromColumn: Int?
     var swipeFromRow: Int?
+    var selectionSprite = SKSpriteNode()
     // 这是一个闭包函数，接受一个Swap的参数，没有返回值。这个属性可以是nil，所以使用Optional value ?
     var swipeHandler: ((Swap) -> ())?
     
@@ -42,6 +43,31 @@ class GameScene: SKScene {
         
         swipeFromColumn = nil
         swipeFromRow = nil
+    }
+    
+    // 选择🍰的高亮
+    func showSelectionIndicatorForCookie(cookie: Cookie){
+        if selectionSprite.parent != nil {
+            selectionSprite.removeFromParent()
+        }
+        
+        if let sprite = cookie.sprite {
+            let texture = SKTexture(imageNamed: cookie.cookieType.highlightedSpriteName)
+            selectionSprite.size = texture.size()
+            // 只设置texture不会同时设定正确的size，但是使用SKAction却会
+            selectionSprite.runAction(SKAction.setTexture(texture))
+            
+            sprite.addChild(selectionSprite)
+            selectionSprite.alpha = 1.0
+        }
+    }
+    
+    // 取消🍰的高亮
+    func hideSelectionIndicator() {
+        selectionSprite.runAction(SKAction.sequence([
+            SKAction.fadeOutWithDuration(0.3),
+            SKAction.removeFromParent()
+            ]))
     }
     
     func addTiles(){
@@ -81,6 +107,8 @@ class GameScene: SKScene {
         if success {
             // 3. 验证该处是一个🍰还是一个空格子
             if let cookie = level.cookieAtColumn(column, row: row){
+                // 高亮选择的🍰
+                showSelectionIndicatorForCookie(cookie)
                 // 4. 是🍰，记录行列号
                 swipeFromColumn = column
                 swipeFromRow = row
@@ -110,12 +138,18 @@ class GameScene: SKScene {
             
             if (horzDelta != 0 || vertDelta != 0) {
                 trySwapHorizontal(horzDelta, vertical: vertDelta)
+                //取消高亮🍰
+                hideSelectionIndicator()
                 swipeFromColumn = nil
             }
         }
     }
     
     override func touchesEnded(touches: NSSet!, withEvent event: UIEvent!){
+        if selectionSprite.parent != nil && swipeFromColumn != nil {
+            //取消高亮🍰
+            hideSelectionIndicator()
+        }
         swipeFromColumn = nil
         swipeFromRow = nil
     }
