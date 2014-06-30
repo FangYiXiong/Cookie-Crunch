@@ -14,6 +14,7 @@ let NumRows = 9
 class Level {
     let cookies = Array2D<Cookie>(columns: NumColumns, rows:NumRows) //private
     let tiles = Array2D<Tile>(columns: NumColumns, rows:NumRows) // privarte
+    var possibleSwaps = Set<Swap>() // private
     
     init(filename: String){
         // 读取JSON文件
@@ -49,7 +50,35 @@ class Level {
     }
     
     func shuffle() -> Set<Cookie> {
+        var set: Set<Cookie>
+        do {
+            set = createInitialCookies()
+            detectPossibleSwaps()
+            println("possible swaps: \(possibleSwaps)")
+        } while possibleSwaps.count == 0
         return createInitialCookies()
+    }
+    
+    func hasChainAtColumn(column: Int, row: Int) -> Bool {
+        let cookieType = cookies[column, row]!.cookieType
+        
+        var horzLength = 1
+        for var i = column - 1; i >= 0 && cookies[i, row]?.cookieType == cookieType;
+            --i, ++horzLength { }
+        for var i = column + 1; i < NumColumns && cookies[i, row]?.cookieType == cookieType;
+            ++i, ++horzLength { }
+        if horzLength >= 3 { return true }
+        
+        var vertLength = 1
+        for var i = row - 1; i >= 0 && cookies[column, i]?.cookieType == cookieType;
+            --i, ++vertLength { }
+        for var i = row + 1; i < NumRows && cookies[column, i]?.cookieType == cookieType;
+            ++i, ++vertLength { }
+        return vertLength >= 3
+    }
+    
+    func detectPossibleSwaps() {
+    
     }
     
     func createInitialCookies() -> Set<Cookie> {
