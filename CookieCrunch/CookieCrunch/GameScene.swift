@@ -23,6 +23,12 @@ class GameScene: SKScene {
     let cookiesLayer = SKNode()
     let tilesLayer = SKNode()
     
+    let swapSound = SKAction.playSoundFileNamed("Chomp.wav", waitForCompletion: false)
+    let invalidSwapSound = SKAction.playSoundFileNamed("Error.wav", waitForCompletion: false)
+    let matchSound = SKAction.playSoundFileNamed("Ka-Ching.wav", waitForCompletion: false)
+    let fallingCookieSound = SKAction.playSoundFileNamed("Scrape.wav", waitForCompletion: false)
+    let addCookieSound = SKAction.playSoundFileNamed("Drip.wav", waitForCompletion: false)
+    
     init(size: CGSize){
         super.init(size: size)
         
@@ -203,6 +209,28 @@ class GameScene: SKScene {
         moveB.timingMode = .EaseOut
         spriteB.runAction(moveB)
         
+        runAction(swapSound)
+    }
+    
+    func animateInvalidSwap(swap: Swap, completion: () -> ()) {
+        let spriteA = swap.cookieA.sprite!
+        let spriteB = swap.cookieB.sprite!
+        
+        spriteA.zPosition = 100
+        spriteB.zPosition = 90
+        
+        let Duration: NSTimeInterval = 0.3
+        
+        let moveA = SKAction.moveTo(spriteB.position, duration: Duration)
+        moveA.timingMode = .EaseOut
+        
+        let moveB = SKAction.moveTo(spriteA.position, duration: Duration)
+        moveB.timingMode = .EaseOut
+        
+        spriteA.runAction(SKAction.sequence([moveA,moveB]), completion:completion)
+        spriteB.runAction(SKAction.sequence([moveB,moveA]))
+        
+        runAction(invalidSwapSound)
     }
 }
  

@@ -49,16 +49,26 @@ class Level {
         return cookies[column,row]
     }
     
+    // 打乱🍰的顺序
     func shuffle() -> Set<Cookie> {
         var set: Set<Cookie>
         do {
             set = createInitialCookies()
             detectPossibleSwaps()
             println("possible swaps: \(possibleSwaps)")
-        } while possibleSwaps.count == 0
-        return createInitialCookies()
+        }
+        while possibleSwaps.count == 0
+        
+        return set
     }
     
+    // 检测是否是一个有效的交换
+    func isPossibleSwap(swap: Swap) -> Bool {
+        // 这里可行的原因是我们已经重载了 Swap 的 hashValue，调用==的时候比较的就是hashValue
+        return possibleSwaps.containsElement(swap)
+    }
+    
+    // 判断当前位置的纵向和横向是否可以消除
     func hasChainAtColumn(column: Int, row: Int) -> Bool {
         let cookieType = cookies[column, row]!.cookieType
         
@@ -77,17 +87,63 @@ class Level {
         return vertLength >= 3
     }
     
+    // 检测所有可能的消除
     func detectPossibleSwaps() {
         var set = Set<Swap>()
-        
         for row in 0..NumRows {
             for column in 0..NumColumns {
                 if let cookie = cookies[column, row] {
-                    // TODO: detection logic goes here
+                    // TODO: 检测的逻辑代码
+                    // 思路 1. 如果当前是🍰，那么执行检测逻辑，并把结果储存到 possibleSwaps 这个属性中
+                    // 2. 同样的逻辑执行2遍，只是方向不同，第 1 次向右交换，第 2 次向上交换
+                    
+                    // 向右交换
+                    // 判断右边是否到了边界
+                    if column < NumColumns - 1 {
+                        // 判断右边是否有🍰
+                        if let other = cookies[column+1, row]{
+                            // 交换两者
+                            cookies[column, row] = other
+                            cookies[column+1, row] = cookie
+                            
+                            // 检测当前是否可以消除
+                            if hasChainAtColumn(column+1, row: row) ||
+                               hasChainAtColumn(column, row: row) {
+                                set.addElement(Swap(cookieA: cookie, cookieB: other))
+                            }
+                            
+                            // 交换回来
+                            cookies[column, row] = cookie
+                            cookies[column+1, row] = other
+                        }
+                    }
+                    
+                    // 向上交换
+                    // 判断是否到了上边界
+                    if row < NumRows - 1 {
+                        // 判断上边是否是🍰
+                        if let other = cookies[column, row + 1]{
+                            // 交换两者
+                            cookies[column, row] = other
+                            cookies[column, row + 1] = cookie
+                            
+                            // 判断是否可以消除
+                            if hasChainAtColumn(column, row: row) ||
+                               hasChainAtColumn(column, row: row + 1) {
+                                set.addElement(Swap(cookieA: cookie, cookieB: other))
+                            }
+                            
+                            // 交换回来
+                            cookies[column, row] = cookie
+                            cookies[column, row + 1] = other
+                        }
+                    }
                     
                 }
             }
         }
+        
+        possibleSwaps = set
     }
     
     func createInitialCookies() -> Set<Cookie> {
@@ -131,4 +187,5 @@ class Level {
         swap.cookieA.column = columnB
         swap.cookieA.row = rowB
     }
+    
 }

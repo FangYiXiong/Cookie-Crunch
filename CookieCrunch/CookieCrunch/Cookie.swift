@@ -29,7 +29,7 @@ enum CookieType: Int, Printable{
     }
     
     var description: String {
-        return spriteName
+        return ["羊角面包","纸杯面包","冰块","甜甜圈","铜锣烧","星星"][toRaw() - 1]
     }
     
     // 每次增加一个糖果，要一个随机类型，所以把这个函数放到枚举中会很合适
